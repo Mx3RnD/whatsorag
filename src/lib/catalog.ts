@@ -68,6 +68,7 @@ export const PIECES: Piece[] = [
   { id: "se-embed", category: "searchable", label: "Embed", blurb: "Turn text into searchable meaning.", options: ["voyage-3", "gemini embeddings2", "openweight (bge/nomic/qwen)", "nemotron embed-vl"] },
   { id: "se-vectorize", category: "searchable", label: "Vectorize", blurb: "Make the fingerprint vector." },
   { id: "se-index", category: "searchable", label: "Index", blurb: "Store fingerprints for fast search." },
+  { id: "se-summary-tree", category: "searchable", label: "Summary tree", blurb: "Group and summarize passages into layers, so you can pull the big picture or the detail." },
 
   // Resolve / organize
   { id: "rs-dedup", category: "resolve", label: "Dedup", blurb: "Remove duplicates." },
@@ -97,6 +98,8 @@ export const PIECES: Piece[] = [
   { id: "rag-graph", category: "rag", label: "GraphRAG", blurb: "Retrieval over a graph of links." },
   { id: "rag-hyper", category: "rag", label: "HypergraphRAG", blurb: "Retrieval over n-ary facts." },
   { id: "rag-anything", category: "rag", label: "RAGAnything", blurb: "All-in-one multimodal RAG." },
+  { id: "rag-raptor", category: "rag", label: "RAPTOR", blurb: "Summarizes long documents into layers, then answers from the right layer for big-picture or detail." },
+  { id: "rag-hippo", category: "rag", label: "HippoRAG", blurb: "Builds a memory of linked facts and answers multi-part questions in one hop, brain-style." },
 ];
 
 export function piecesByCategory(): Record<CategoryKey, Piece[]> {

@@ -1,13 +1,53 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle } from "@phosphor-icons/react";
+import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle, Compass } from "@phosphor-icons/react";
 import { useCanvas } from "@/store/canvas";
 import { getPiece } from "@/lib/catalog";
 import { analyze } from "@/lib/analyze";
+import { recommend } from "@/lib/recommend";
 import { Term } from "@/components/Term";
 import { saveFlow } from "@/lib/persist";
 import { buildSpecMarkdown, downloadMarkdown } from "@/lib/exportSpec";
+
+// Words that have a hover definition in the glossary; wrap them where they appear in
+// recommendation text so the user can hover any jargon.
+const TERMS = [
+  "RAPTOR", "HippoRAG", "HypergraphRAG", "GraphRAG", "LazyGraphRAG", "LightRAG",
+  "HyperTSRAG", "ColPali", "BM25", "hybrid", "rerank", "embeddings", "provenance",
+  "Personalized PageRank", "hypergraph", "summary tree", "RAG",
+];
+const TERM_RE = new RegExp(`\\b(${TERMS.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})\\b`, "gi");
+
+// Render a plain string, wrapping any glossary term in <Term> for hover definitions.
+function Glossed({ text }: { text: string }) {
+  const parts = text.split(TERM_RE);
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <Term key={i} word={part}>{part}</Term>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
+function ConfidenceBadge({ level }: { level: "high" | "medium" | "preprint" }) {
+  const styles: Record<string, string> = {
+    high: "bg-green-100 text-green-800",
+    medium: "bg-amber-100 text-amber-800",
+    preprint: "bg-rose-100 text-rose-800",
+  };
+  const label = level === "preprint" ? "preprint" : `${level} confidence`;
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${styles[level]}`}>
+      {label}
+    </span>
+  );
+}
 
 function Bar({ label, value, hint }: { label: string; value: number; hint: string }) {
   const color = value >= 66 ? "#3A9D3A" : value >= 40 ? "#E08A1E" : "#D6336C";
@@ -30,6 +70,7 @@ export function OutputPanel() {
   const selected = nodes.find((n) => n.id === selectedId);
   const selectedPiece = selected ? getPiece(selected.data.pieceId) : undefined;
   const a = useMemo(() => analyze(nodes, tuning), [nodes, tuning]);
+  const rec = useMemo(() => recommend(nodes), [nodes]);
 
   return (
     <aside className="flex h-full w-[350px] flex-col overflow-y-auto border-l border-neutral-200 bg-white">
@@ -54,6 +95,43 @@ export function OutputPanel() {
         >
           <DownloadSimple size={15} weight="bold" /> Export
         </button>
+      </div>
+
+      {/* Recommended retrieval */}
+      <div className="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
+        <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+          <Compass size={14} weight="bold" /> Recommended retrieval
+        </div>
+        <div className="mb-1 flex items-start justify-between gap-2">
+          <div className="text-[13px] font-semibold leading-snug text-neutral-900">
+            <Glossed text={rec.architecture} />
+          </div>
+          <ConfidenceBadge level={rec.confidence} />
+        </div>
+        <p className="mb-2 text-[12px] leading-snug text-neutral-700">
+          <Glossed text={rec.why} />
+        </p>
+
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Why (from your canvas)</div>
+        <ul className="mb-2 list-disc pl-4 text-[12px] text-neutral-700">
+          {rec.basis.map((b, i) => (
+            <li key={i} className="mb-0.5"><Glossed text={b} /></li>
+          ))}
+        </ul>
+
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Alternatives</div>
+        <ul className="mb-2 list-disc pl-4 text-[12px] text-neutral-700">
+          {rec.alternatives.map((alt, i) => (
+            <li key={i} className="mb-0.5"><Glossed text={alt} /></li>
+          ))}
+        </ul>
+
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Always-good baseline</div>
+        <ul className="list-disc pl-4 text-[12px] text-neutral-600">
+          {rec.baseline.map((b, i) => (
+            <li key={i} className="mb-0.5"><Glossed text={b} /></li>
+          ))}
+        </ul>
       </div>
 
       {/* Selected piece config */}

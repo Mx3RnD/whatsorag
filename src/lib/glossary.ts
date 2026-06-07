@@ -36,6 +36,16 @@ export const DEFINITIONS: Record<string, string> = {
   embeddings2: "The latest generation of embedding models.",
   "episodic memory": "A memory of events over time: what happened and when, kept alongside meaning search.",
   "semantic memory": "A memory of what things mean, not tied to time.",
+  raptor: "A method that summarizes long documents into layers so you can ask for the big picture or the fine detail.",
+  hipporag: "A brain-inspired method that links facts into a memory and answers multi-part questions in one hop.",
+  hybrid: "Searching by meaning and by exact keywords at the same time, then combining the results.",
+  bm25: "A classic keyword search that ranks results by how well the words match.",
+  colpali: "An AI that searches document pages as images, so tables and charts are not lost.",
+  lazygraphrag: "A cheaper GraphRAG that waits to do the expensive AI work until you actually ask.",
+  hypertsrag: "An early-stage method that adds 'when' and 'where' scoring on top of a hypergraph.",
+  "summary tree": "Passages grouped and summarized into layers, from detail at the bottom to overview at the top.",
+  "personalized pagerank": "A way to score which linked facts matter most for your specific question.",
+  provenance: "A record of where each fact came from, so you can cite the source.",
 };
 
 export function defineTerm(word: string): string | undefined {

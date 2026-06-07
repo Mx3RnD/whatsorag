@@ -45,6 +45,8 @@ export function analyze(nodes: Node<PieceNodeData>[], t: Tuning): Analysis {
   if (has("st-relational")) outcomes.push("Relational database (postgres): tidy rows your apps and dashboards read.");
   if (has("st-hypergraph") || has("rag-hyper")) outcomes.push("Hypergraph: one fact can link many entities at once, with a source trail.");
   if (has("rag-graph")) outcomes.push("GraphRAG: answers that follow links between things.");
+  if (has("rag-raptor") || has("se-summary-tree")) outcomes.push("RAPTOR: a summary tree, so you can ask for the big picture or the exact detail from the same store.");
+  if (has("rag-hippo")) outcomes.push("HippoRAG: a memory of linked facts that answers multi-part questions in one hop.");
   if (has("st-timeline")) outcomes.push("Order aware: a timeline you can ask 'what is the latest'.");
   if (has("st-episodic")) outcomes.push("Episodic memory: a record of what happened and when, built in parallel from the same input.");
   if (has("st-semantic")) outcomes.push("Semantic memory: what things mean, separate from time.");
@@ -58,6 +60,8 @@ export function analyze(nodes: Node<PieceNodeData>[], t: Tuning): Analysis {
   if (t.rerank) benefits.push("Rerank filters out 'looks similar but wrong' results.");
   if (t.chunkStrategy !== "naive") benefits.push(`${t.chunkStrategy === "late" ? "Late chunking" : "Contextual chunking"} keeps each passage's context, so retrieval misses less.`);
   if (has("st-hypergraph") || has("rag-hyper")) benefits.push("Multi-part questions and 'also reported as' values are answerable, not lost.");
+  if (has("rag-raptor") || has("se-summary-tree")) benefits.push("Long documents stay answerable at both levels: a high-level 'what does this conclude' and a low-level 'what was the exact number' come from the same tree.");
+  if (has("rag-hippo")) benefits.push("Multi-hop questions are answered in a single step instead of many retrieval rounds, which keeps cost down.");
   if (has("st-episodic") && (has("st-semantic") || has("st-vector"))) benefits.push("Episodic and semantic memory run in parallel from the same input, like a brain: one for 'when', one for 'what it means'.");
   if (benefits.length === 0) benefits.push("Add pieces to see the benefits of your choices.");
 
