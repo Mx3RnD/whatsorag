@@ -112,9 +112,10 @@ function stageHealth(
   storage: number,
   recall: number,
 ): Snapshot["health"] {
+  // Only a genuine mismatch "breaks" it. Rising cost/storage as data grows is normal -
+  // that is "strained" (a budget note), never a failure.
   if (baseVerdict === "check") return "breaks";
-  if (cost >= 85 || storage >= 88) return "breaks";
-  if (cost >= 68 || storage >= 70 || recall < 45) return "strained";
+  if (cost >= 90 || storage >= 92 || recall < 35) return "strained";
   return "healthy";
 }
 
@@ -223,14 +224,11 @@ function buildVerdict(
     : "Right now you would re-mix everything and rebake each time you add. Add dedup or cross-reference to switch to rolling ingestion (bake as you add).";
 
   if (mature.health === "breaks") {
-    if (snaps[0].health !== "breaks") {
-      return "Works on day one, but breaks as data grows. " + mode;
-    }
-    return "Has gaps that stop it working. Fix those first, before worrying about growth.";
+    return "One mismatch to fix first (see the issues above). Sort that and it is good to grow. " + mode;
   }
 
   if (mature.health === "strained") {
-    return "Keeps working as it grows, but cost and storage rise (budget for it or trim the embedding size). " + mode;
+    return "Keeps working as it grows; cost and storage rise as data piles up, which is normal (budget for it or trim the embedding size). " + mode;
   }
 
   return "Stays healthy as it grows. " + mode;
