@@ -94,43 +94,42 @@ function Inner() {
           nodeColor={(n) => CATEGORIES[(n.data as { category: keyof typeof CATEGORIES }).category]?.color ?? "#888"}
         />
 
-        <Panel position="top-right">
-          <div className="flex gap-1.5">
-            <button
-              type="button"
-              onClick={onArrange}
-              className="flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
-            >
-              <Columns size={16} weight="bold" />
-              Arrange in stages
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (nodes.length === 0 || confirm("Start over? This clears the canvas.")) clear();
-              }}
-              className="flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
-            >
-              <ArrowCounterClockwise size={16} weight="bold" />
-              Start over
-            </button>
-          </div>
-        </Panel>
-
         <Panel position="top-left">
-          <div className="flex gap-1.5">
-            {STAGE_ORDER.map((key) => {
-              const color = CATEGORIES[key].color;
-              return (
-                <div
-                  key={key}
-                  className="rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/95"
-                  style={{ background: color, opacity: 0.72 }}
-                >
-                  {STAGE_LABELS[key]}
-                </div>
-              );
-            })}
+          <div className="flex max-w-[min(560px,70vw)] flex-col gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={onArrange}
+                className="flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
+              >
+                <Columns size={16} weight="bold" />
+                Arrange in stages
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (nodes.length === 0 || confirm("Start over? This clears the canvas.")) clear();
+                }}
+                className="flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
+              >
+                <ArrowCounterClockwise size={16} weight="bold" />
+                Start over
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {STAGE_ORDER.map((key) => {
+                const color = CATEGORIES[key].color;
+                return (
+                  <div
+                    key={key}
+                    className="rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/95"
+                    style={{ background: color, opacity: 0.72 }}
+                  >
+                    {STAGE_LABELS[key]}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </Panel>
       </ReactFlow>
