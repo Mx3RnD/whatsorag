@@ -94,7 +94,7 @@ const ROWS: Row[] = [
         vector RAG (Microsoft).
       </>
     ),
-    bestFor: "Big corpora where you want graph answers without graph build cost.",
+    bestFor: "Big corpora where you want graph-style answers at near vector-RAG index cost; quality win is Microsoft's own benchmark.",
     sourceConfidence: "Grounded at query time on retrieved spans.",
   },
   {
@@ -162,7 +162,7 @@ const ROWS: Row[] = [
         <Term word="ocr">OCR</Term> or parsing (ICLR 2025).
       </>
     ),
-    bestFor: "Visually rich PDFs: forms, tables, figures, scans.",
+    bestFor: "Visually rich PDFs: forms, tables, figures, scans. Cost: ~100x more vectors per page (TB-scale storage) and added per-query latency at scale.",
     sourceConfidence: "Points to the exact page region that matched.",
   },
   {

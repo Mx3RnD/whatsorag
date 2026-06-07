@@ -33,7 +33,7 @@ export const DEFINITIONS: Record<string, string> = {
   rerank: "Reordering search results so the best ones come first.",
   multimodal: "Handling text, images, audio and video together.",
   "order aware": "Keeping track of time order and what is latest.",
-  embeddings2: "The latest generation of embedding models.",
+  embeddings2: "A newer generation of embedding models (leaderboards shift fast, so 'best' is a moving target).",
   "episodic memory": "A memory of events over time: what happened and when, kept alongside meaning search.",
   "semantic memory": "A memory of what things mean, not tied to time.",
   raptor: "A method that summarizes long documents into layers so you can ask for the big picture or the fine detail.",
