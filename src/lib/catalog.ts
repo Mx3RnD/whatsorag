@@ -90,6 +90,8 @@ export const PIECES: Piece[] = [
   { id: "rs-name", category: "resolve", label: "Name", blurb: "Give it a canonical name or label." },
   { id: "rs-enrich", category: "resolve", label: "Enrich", blurb: "Add extra detail to an entity from other sources." },
   { id: "rs-bbox", category: "resolve", label: "Bounding box", blurb: "Mark exactly where on the page a fact came from (source trail), for highlighting." },
+  { id: "rs-fingerprint", category: "resolve", label: "Fingerprint", blurb: "Attribute content to who made it: speaker (voice), writer (style), or source.", options: ["speaker (voice)", "writer (style)", "source"] },
+  { id: "rs-flag", category: "resolve", label: "Flag gaps", blurb: "Flag items missing required context (e.g. undated QC data) for follow-up." },
 
   // Stores
   { id: "st-vector", category: "store", label: "Vector database", blurb: "Search by meaning." },

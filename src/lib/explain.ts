@@ -59,6 +59,18 @@ export const EXPLAIN: Record<string, Explain> = {
     when: "Photos, screenshots of things, pictures of labels or whiteboards.",
     vs: "Photo vs PDF-scan: both are pixels, but a PDF can also be born-digital text; a photo never is.",
   },
+
+  // --- the design questions as pieces ---------------------------------------
+  "rs-fingerprint": {
+    what: "Works out WHO made the content. Audio: separate and identify speakers by voice (diarization plus a voice signature). Text: attribute the author by writing style, or from metadata.",
+    when: "Meeting logs, multi-author corpora, anything where 'who said or wrote this' matters.",
+    vs: "Fingerprint = who made it. Entity = things mentioned in it. Source = which system it came from.",
+  },
+  "rs-flag": {
+    what: "Checks each item for the context it needs and flags what is missing (e.g. a QC value with no date, no units, or no source), so it can be chased or held back from calculations.",
+    when: "Any data you will calculate on or trust - lab and QC data, specs, financials.",
+    vs: "Flag gaps spots what is missing; Enrich then fills it; Normalize fixes the format.",
+  },
 };
 
 export function explainPiece(id: string): Explain | undefined {

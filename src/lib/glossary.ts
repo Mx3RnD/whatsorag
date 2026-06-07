@@ -17,7 +17,7 @@ export const DEFINITIONS: Record<string, string> = {
   overlap: "Repeating a little text between passages so context is not cut.",
   embed: "Turning text into numbers that capture its meaning.",
   vectorize: "Turning text into numbers that capture its meaning.",
-  fingerprint: "The meaning-numbers for a piece of text.",
+  fingerprint: "A signature that identifies something: a speaker's voice, a writer's style, or the meaning-numbers of a text.",
   index: "A structure that makes searching those fingerprints fast.",
   "vector database": "A store that finds things by meaning.",
   "relational database": "A store of rows and columns (postgres / sql).",
