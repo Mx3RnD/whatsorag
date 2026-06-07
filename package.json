@@ -2,11 +2,27 @@
   "name": "whatsorag",
   "version": "0.1.0",
   "private": true,
+  "description": "A visual webapp that helps you figure out how to ingest, extract, and RAG. Design a pipeline, see the tradeoffs, get an architecture recommendation, and export a plan.",
+  "author": "Meagan McKeever",
+  "license": "MIT",
+  "keywords": [
+    "rag",
+    "graphrag",
+    "hypergraph",
+    "retrieval-augmented-generation",
+    "pipeline",
+    "ingestion",
+    "embeddings",
+    "react-flow",
+    "nextjs"
+  ],
+  "homepage": "https://whatsorag.vercel.app",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sim": "npx tsx scripts/sim.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
