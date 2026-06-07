@@ -22,7 +22,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "sim": "npx tsx scripts/sim.ts"
+    "sim": "npx tsx scripts/sim.ts",
+    "test": "npx tsx scripts/e2e.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
