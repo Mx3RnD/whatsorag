@@ -51,9 +51,17 @@ export const PIECES: Piece[] = [
   // Identify
   { id: "id-identify", category: "identify", label: "Identify", blurb: "Detect type and language per file.", options: ["detect type", "detect language", "categorize", "label"] },
   { id: "id-multimodal", category: "identify", label: "Multimodal", blurb: "Route text, image, audio, video to the right track." },
+  { id: "id-categorize", category: "identify", label: "Categorize", blurb: "Sort items into groups or types.", options: ["by topic", "by kind", "by source"] },
+  { id: "id-fields", category: "identify", label: "Identify fields", blurb: "Detect what fields or structure are present (defined vs not)." },
+  { id: "id-source", category: "identify", label: "Identify source", blurb: "Detect where it came from." },
+  { id: "id-topic", category: "identify", label: "Identify topic", blurb: "Detect what it is about." },
+  { id: "id-origin", category: "identify", label: "Identify origin", blurb: "Detect the origin and type of the item." },
 
   // Read / parse
   { id: "rd-parse", category: "read", label: "Parse", blurb: "Read the file into text.", options: ["liteparse", "doc-vlm", "conversion"] },
+  { id: "rd-convert", category: "read", label: "Convert", blurb: "Change a file to another format (e.g. office to pdf)." },
+  { id: "rd-screenshot", category: "read", label: "Screenshot", blurb: "Capture a page or screen as an image for vision." },
+  { id: "rd-research", category: "read", label: "Research further", blurb: "Look things up to fill gaps (enrich)." },
   { id: "rd-extract-txt", category: "read", label: "Extract txt", blurb: "Pull out the words." },
   { id: "rd-extract-table", category: "read", label: "Extract table", blurb: "Keep tables as tables (markdown)." },
   { id: "rd-ocr", category: "read", label: "OCR", blurb: "Read text baked into a picture.", options: ["tesseract", "paddleocr", "doc-vlm"] },
@@ -77,6 +85,7 @@ export const PIECES: Piece[] = [
   { id: "rs-relationship", category: "resolve", label: "Relationship", blurb: "Link entities together." },
   { id: "rs-canonical", category: "resolve", label: "Canonical", blurb: "Pick one primary name (aka the rest).", options: ["aka", "group"] },
   { id: "rs-define", category: "resolve", label: "Define", blurb: "Define an entity or term." },
+  { id: "rs-name", category: "resolve", label: "Name", blurb: "Give it a canonical name or label." },
 
   // Stores
   { id: "st-vector", category: "store", label: "Vector database", blurb: "Search by meaning." },
