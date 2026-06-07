@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -12,7 +12,7 @@ import {
   type Node,
   type NodeTypes,
 } from "@xyflow/react";
-import { Columns, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { Columns, ArrowCounterClockwise, Trash } from "@phosphor-icons/react";
 import { PieceNode } from "@/components/PieceNode";
 import { useCanvas, type PieceNodeData } from "@/store/canvas";
 import { getPiece, CATEGORIES } from "@/lib/catalog";
@@ -22,7 +22,29 @@ const nodeTypes: NodeTypes = { piece: PieceNode };
 
 function Inner() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addPiece, select, clear } = useCanvas();
-  const { screenToFlowPosition, setNodes, fitView } = useReactFlow<Node<PieceNodeData>>();
+  const { screenToFlowPosition, setNodes, setEdges, fitView } = useReactFlow<Node<PieceNodeData>>();
+  const [menu, setMenu] = useState<{ x: number; y: number; kind: "node" | "edge"; id: string } | null>(null);
+
+  const onNodeContextMenu = useCallback((e: React.MouseEvent, n: Node<PieceNodeData>) => {
+    e.preventDefault();
+    setMenu({ x: e.clientX, y: e.clientY, kind: "node", id: n.id });
+  }, []);
+  const onEdgeContextMenu = useCallback((e: React.MouseEvent, ed: { id: string }) => {
+    e.preventDefault();
+    setMenu({ x: e.clientX, y: e.clientY, kind: "edge", id: ed.id });
+  }, []);
+  const onDeleteFromMenu = useCallback(() => {
+    setMenu((m) => {
+      if (!m) return null;
+      if (m.kind === "node") {
+        setNodes((ns) => ns.filter((n) => n.id !== m.id));
+        setEdges((es) => es.filter((e) => e.source !== m.id && e.target !== m.id));
+      } else {
+        setEdges((es) => es.filter((e) => e.id !== m.id));
+      }
+      return null;
+    });
+  }, [setNodes, setEdges]);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -49,6 +71,8 @@ function Inner() {
         edges={edges}
         nodeTypes={nodeTypes}
         deleteKeyCode={["Backspace", "Delete"]}
+        onNodeContextMenu={onNodeContextMenu}
+        onEdgeContextMenu={onEdgeContextMenu}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -110,6 +134,32 @@ function Inner() {
           </div>
         </Panel>
       </ReactFlow>
+
+      {menu && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setMenu(null)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              setMenu(null);
+            }}
+          />
+          <div
+            style={{ position: "fixed", left: menu.x, top: menu.y }}
+            className="z-50 overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg"
+          >
+            <button
+              type="button"
+              onClick={onDeleteFromMenu}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              <Trash size={15} weight="bold" />
+              Delete {menu.kind === "edge" ? "arrow" : "piece"}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

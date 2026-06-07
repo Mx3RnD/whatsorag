@@ -40,7 +40,8 @@ export function buildSpecMarkdown(
     inCat.forEach((n) => {
       const p = getPiece(n.data.pieceId);
       const choice = n.data.choice ? ` — using **${n.data.choice}**` : "";
-      L.push(`- **${n.data.label}**${choice}: ${p?.blurb ?? ""}`);
+      const model = n.data.model ? ` (model: ${n.data.model})` : "";
+      L.push(`- **${n.data.label}**${choice}${model}: ${p?.blurb ?? ""}`);
     });
     L.push("");
   });

@@ -11,7 +11,7 @@ import {
   applyEdgeChanges,
   addEdge,
 } from "@xyflow/react";
-import { getPiece, type Piece } from "@/lib/catalog";
+import { getPiece, getModels, type Piece } from "@/lib/catalog";
 
 export type PieceNodeData = {
   pieceId: string;
@@ -19,6 +19,7 @@ export type PieceNodeData = {
   category: string;
   color: string;
   choice?: string; // selected option/method for this node
+  model?: string; // selected LLM/model for this node (if model-backed)
   [key: string]: unknown;
 };
 
@@ -52,6 +53,7 @@ type CanvasState = {
   addPiece: (piece: Piece, position: { x: number; y: number }) => void;
   select: (id: string | null) => void;
   setChoice: (id: string, choice: string) => void;
+  setModel: (id: string, model: string) => void;
   setTuning: (patch: Partial<Tuning>) => void;
   loadInto: (nodes: Node<PieceNodeData>[], edges: Edge[], tuning: Tuning) => void;
   clear: () => void;
@@ -84,6 +86,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
         category: piece.category,
         color: getPiece(piece.id)?.category ? colorFor(piece.id) : "#888",
         choice: piece.options?.[0],
+        model: getModels(piece.id)?.[0],
       },
     };
     set({ nodes: [...get().nodes, node], selectedId: id });
@@ -94,6 +97,12 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     set({
       nodes: get().nodes.map((n) =>
         n.id === id ? { ...n, data: { ...n.data, choice } } : n
+      ),
+    }),
+  setModel: (id, model) =>
+    set({
+      nodes: get().nodes.map((n) =>
+        n.id === id ? { ...n, data: { ...n.data, model } } : n
       ),
     }),
   setTuning: (patch) => set({ tuning: { ...get().tuning, ...patch } }),

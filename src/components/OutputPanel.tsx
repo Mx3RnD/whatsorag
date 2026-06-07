@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle, Compass } from "@phosphor-icons/react";
 import { useCanvas } from "@/store/canvas";
-import { getPiece } from "@/lib/catalog";
+import { getPiece, getModels } from "@/lib/catalog";
+import { getSample } from "@/lib/samples";
+import { explainPiece } from "@/lib/explain";
 import { analyze } from "@/lib/analyze";
 import { recommend } from "@/lib/recommend";
 import { Term } from "@/components/Term";
@@ -65,7 +67,7 @@ function Bar({ label, value, hint }: { label: string; value: number; hint: strin
 }
 
 export function OutputPanel() {
-  const { nodes, edges, selectedId, tuning, setChoice, setTuning } = useCanvas();
+  const { nodes, edges, selectedId, tuning, setChoice, setModel, setTuning } = useCanvas();
   const [name, setName] = useState("My pipeline");
   const selected = nodes.find((n) => n.id === selectedId);
   const selectedPiece = selected ? getPiece(selected.data.pieceId) : undefined;
@@ -134,6 +136,34 @@ export function OutputPanel() {
         </ul>
       </div>
 
+      {/* About this piece */}
+      {selected && (
+        <div className="border-b border-neutral-200 px-4 py-3">
+          <div className="text-sm font-semibold text-neutral-800">
+            <Term word={selected.data.label}>{selected.data.label}</Term>
+          </div>
+          {(() => {
+            const ex = explainPiece(selected.data.pieceId);
+            const what = ex?.what ?? selectedPiece?.blurb;
+            return (
+              <>
+                {what && <p className="mt-1 text-[12px] text-neutral-600">{what}</p>}
+                {ex?.when && (
+                  <p className="mt-1 text-[12px] text-neutral-500">
+                    <span className="font-medium">When:</span> {ex.when}
+                  </p>
+                )}
+                {ex?.vs && (
+                  <p className="mt-1 text-[12px] text-neutral-500">
+                    <span className="font-medium">Vs others:</span> {ex.vs}
+                  </p>
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
+
       {/* Selected piece config */}
       {selected && selectedPiece?.options && (
         <div className="border-b border-neutral-200 px-4 py-3">
@@ -151,6 +181,36 @@ export function OutputPanel() {
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {/* Model picker (LLM-backed pieces) */}
+      {selected && getModels(selected.data.pieceId) && (
+        <div className="border-b border-neutral-200 px-4 py-3">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Model</div>
+          <select
+            value={selected.data.model ?? ""}
+            onChange={(e) => setModel(selected.id, e.target.value)}
+            className="mt-1.5 w-full rounded-md border border-neutral-200 px-2 py-1.5 text-sm"
+          >
+            {getModels(selected.data.pieceId)!.map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
+          <div className="mt-1 text-[10px] text-neutral-400">Open-weight and frontier options.</div>
+        </div>
+      )}
+
+      {/* Sample output preview */}
+      {selected && getSample(selected.data.pieceId) && (
+        <div className="border-b border-neutral-200 px-4 py-3">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+            Sample output
+          </div>
+          <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-md bg-neutral-900 p-3 text-[11px] leading-relaxed text-neutral-100">
+{getSample(selected.data.pieceId)!.text}
+          </pre>
+          <div className="mt-1 text-[10px] text-neutral-400">Illustrative example, not your real data.</div>
         </div>
       )}
 
@@ -187,7 +247,7 @@ export function OutputPanel() {
           {(["naive", "contextual", "late"] as const).map((s) => (
             <button key={s} onClick={() => setTuning({ chunkStrategy: s })}
               className={`flex-1 rounded-md border px-1 py-1 text-[11px] ${tuning.chunkStrategy === s ? "border-neutral-800 bg-neutral-800 text-white" : "border-neutral-300 text-neutral-700"}`}>
-              {s}
+              <Term word={s}>{s}</Term>
             </button>
           ))}
         </div>

@@ -50,12 +50,14 @@ export const PIECES: Piece[] = [
 
   // Identify
   { id: "id-identify", category: "identify", label: "Identify", blurb: "Detect type and language per file.", options: ["detect type", "detect language", "categorize", "label"] },
+  { id: "id-language", category: "identify", label: "Detect language", blurb: "Detect which language(s) the content is in, for multilingual handling." },
   { id: "id-multimodal", category: "identify", label: "Multimodal", blurb: "Route text, image, audio, video to the right track." },
   { id: "id-categorize", category: "identify", label: "Categorize", blurb: "Sort items into groups or types.", options: ["by topic", "by kind", "by source"] },
   { id: "id-fields", category: "identify", label: "Identify fields", blurb: "Detect what fields or structure are present (defined vs not)." },
   { id: "id-source", category: "identify", label: "Identify source", blurb: "Detect where it came from." },
   { id: "id-topic", category: "identify", label: "Identify topic", blurb: "Detect what it is about." },
   { id: "id-origin", category: "identify", label: "Identify origin", blurb: "Detect the origin and type of the item." },
+  { id: "id-scan", category: "identify", label: "Scan contents", blurb: "Look inside: does it have text, tables, pictures, or is it just a scan?" },
 
   // Read / parse
   { id: "rd-parse", category: "read", label: "Parse", blurb: "Read the file into text.", options: ["liteparse", "doc-vlm", "conversion"] },
@@ -86,11 +88,15 @@ export const PIECES: Piece[] = [
   { id: "rs-canonical", category: "resolve", label: "Canonical", blurb: "Pick one primary name (aka the rest).", options: ["aka", "group"] },
   { id: "rs-define", category: "resolve", label: "Define", blurb: "Define an entity or term." },
   { id: "rs-name", category: "resolve", label: "Name", blurb: "Give it a canonical name or label." },
+  { id: "rs-enrich", category: "resolve", label: "Enrich", blurb: "Add extra detail to an entity from other sources." },
+  { id: "rs-bbox", category: "resolve", label: "Bounding box", blurb: "Mark exactly where on the page a fact came from (source trail), for highlighting." },
 
   // Stores
   { id: "st-vector", category: "store", label: "Vector database", blurb: "Search by meaning." },
   { id: "st-relational", category: "store", label: "Relational database", blurb: "Rows and columns. postgres / sql.", options: ["postgres", "fill in"] },
-  { id: "st-hypergraph", category: "store", label: "Hypergraph", blurb: "One fact can link many entities at once." },
+  { id: "st-graph", category: "store", label: "Graph database", blurb: "A network of things and the two-way links between them (e.g. neo4j)." },
+  { id: "st-hypergraph", category: "store", label: "Hypergraph", blurb: "One fact can link many entities at once (n-ary, beyond two-way)." },
+  { id: "st-hierarchy", category: "store", label: "Hierarchy", blurb: "A layered store: overview at the top, detail at the bottom (RAPTOR-style tree)." },
   { id: "st-timeline", category: "store", label: "Order aware", blurb: "Keep the timeline / order." },
   { id: "st-episodic", category: "store", label: "Episodic memory", blurb: "Events over time: what happened, when. A parallel memory from the same input." },
   { id: "st-semantic", category: "store", label: "Semantic memory", blurb: "Meaning of things, not tied to time. The other half of memory." },
@@ -101,6 +107,11 @@ export const PIECES: Piece[] = [
   { id: "qo-dashboard", category: "query", label: "Dashboard", blurb: "Show it as a dashboard." },
   { id: "qo-list", category: "query", label: "List", blurb: "Show it as a list." },
   { id: "qo-render", category: "query", label: "Render", blurb: "Draw the result (viewer, thumbnail)." },
+  { id: "qo-json", category: "query", label: "Output json", blurb: "Give the result as json." },
+  { id: "qo-md", category: "query", label: "Output md", blurb: "Give the result as a markdown file." },
+  { id: "qo-answer", category: "query", label: "Output answer", blurb: "Answer a question with its source trail: where did this come from." },
+  { id: "qo-translate", category: "query", label: "Output translate", blurb: "Output a command to translate the result." },
+  { id: "qo-encrypted", category: "query", label: "Output encrypted", blurb: "Scramble the output so only someone with the key can read it." },
 
   // RAG type
   { id: "rag-rag", category: "rag", label: "RAG", blurb: "Plain retrieval over chunks." },
@@ -120,4 +131,24 @@ export function piecesByCategory(): Record<CategoryKey, Piece[]> {
 
 export function getPiece(id: string): Piece | undefined {
   return PIECES.find((p) => p.id === id);
+}
+
+// Model choices for pieces that use an LLM / model. Open-weight and frontier, labelled.
+export const MODELS: Record<string, string[]> = {
+  "rd-parse": ["LiteParse (local)", "Nemotron Parse", "Granite-Docling (open)", "PaddleOCR-VL (open)", "LlamaParse (cloud)"],
+  "rd-ocr": ["Tesseract (open)", "PaddleOCR-VL (open)", "Nemotron OCR", "doc-vlm"],
+  "rd-vision": ["Claude vision (frontier)", "Qwen2.5-VL (open)", "Llama-Vision (open)", "Nemotron VL"],
+  "rd-describe": ["Claude Sonnet (frontier)", "Claude Opus (frontier)", "Qwen2.5-VL (open)"],
+  "rd-transcribe": ["Whisper large-v3 (open)", "faster-whisper (open)", "WhisperX (open)"],
+  "rd-research": ["Claude (frontier)", "Qwen (open)"],
+  "rs-entity": ["Claude Opus (frontier)", "Claude Sonnet (frontier)", "Qwen2.5 (open)"],
+  "rs-relationship": ["Claude Opus (frontier)", "Claude Sonnet (frontier)", "Qwen2.5 (open)"],
+  "rs-enrich": ["Claude (frontier)", "Qwen (open)"],
+  "qo-query": ["Claude (frontier)", "Llama-Nemotron Super (open)", "Qwen (open)"],
+  "qo-answer": ["Claude (frontier)", "Llama-Nemotron Super (open)", "Qwen (open)"],
+  "qo-translate": ["Claude (frontier)", "Qwen (open)"],
+};
+
+export function getModels(id: string): string[] | undefined {
+  return MODELS[id];
 }

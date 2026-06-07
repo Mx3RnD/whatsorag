@@ -46,6 +46,13 @@ export const DEFINITIONS: Record<string, string> = {
   "summary tree": "Passages grouped and summarized into layers, from detail at the bottom to overview at the top.",
   "personalized pagerank": "A way to score which linked facts matter most for your specific question.",
   provenance: "A record of where each fact came from, so you can cite the source.",
+  naive: "Naive chunking: split text into fixed pieces with no extra context. Simplest, but can cut an idea in half.",
+  contextual: "Contextual chunking: add a little of the document's context to each piece before embedding, so it is not read in isolation.",
+  late: "Late chunking: embed the whole document first, then split, so each piece carries the full-document context.",
+  "bounding box": "The exact spot on a page (a box) where a fact was found, used to highlight the source.",
+  enrich: "Adding extra detail from other sources to fill gaps.",
+  "graph database": "A store of things (nodes) and the two-way links between them.",
+  node: "One thing in a graph (an entity), connected to others by links.",
 };
 
 export function defineTerm(word: string): string | undefined {
