@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Stack, Table, Shapes, CookingPot, X } from "@phosphor-icons/react";
+import { Stack, Table, Shapes, CookingPot, ChatText, X } from "@phosphor-icons/react";
 import { Palette } from "@/components/Palette";
 import { PipelineCanvas } from "@/components/PipelineCanvas";
 import { OutputPanel } from "@/components/OutputPanel";
@@ -10,12 +10,14 @@ import { Templates } from "@/components/Templates";
 import { ComparisonTable } from "@/components/ComparisonTable";
 import { DataShape } from "@/components/DataShape";
 import { Cook } from "@/components/Cook";
+import { Feedback } from "@/components/Feedback";
 
 export default function PipelineVisualizer() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
   const [showShape, setShowShape] = useState(false);
   const [showCook, setShowCook] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   return (
     <div className="flex h-screen flex-col">
@@ -71,6 +73,14 @@ export default function PipelineVisualizer() {
             <Table size={15} weight="bold" /> Compare architectures
           </button>
 
+          <button
+            type="button"
+            onClick={() => setShowFeedback(true)}
+            className="flex items-center gap-1.5 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+          >
+            <ChatText size={15} weight="bold" /> Feedback
+          </button>
+
           <span className="ml-2 text-xs text-neutral-400">Made by Meagan McKeever</span>
         </div>
       </header>
@@ -82,6 +92,25 @@ export default function PipelineVisualizer() {
         </div>
         <OutputPanel />
       </div>
+
+      {showFeedback && (
+        <div className="fixed inset-0 z-30 flex items-start justify-center overflow-auto bg-black/40 p-6">
+          <div className="w-full max-w-lg rounded-xl bg-white p-5 shadow-2xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-neutral-900">Leave a comment</h2>
+              <button
+                type="button"
+                onClick={() => setShowFeedback(false)}
+                className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100"
+                aria-label="Close"
+              >
+                <X size={18} weight="bold" />
+              </button>
+            </div>
+            <Feedback />
+          </div>
+        </div>
+      )}
 
       {showCook && (
         <div className="fixed inset-0 z-30 flex items-start justify-center overflow-auto bg-black/40 p-6">
