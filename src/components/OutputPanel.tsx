@@ -8,6 +8,7 @@ import { getSample } from "@/lib/samples";
 import { explainPiece } from "@/lib/explain";
 import { analyze } from "@/lib/analyze";
 import { recommend } from "@/lib/recommend";
+import { realityCheck } from "@/lib/reality";
 import { Term } from "@/components/Term";
 import { saveFlow } from "@/lib/persist";
 import { buildSpecMarkdown, downloadMarkdown } from "@/lib/exportSpec";
@@ -73,6 +74,7 @@ export function OutputPanel() {
   const selectedPiece = selected ? getPiece(selected.data.pieceId) : undefined;
   const a = useMemo(() => analyze(nodes, tuning), [nodes, tuning]);
   const rec = useMemo(() => recommend(nodes), [nodes]);
+  const reality = useMemo(() => realityCheck(nodes, edges), [nodes, edges]);
 
   return (
     <aside className="flex h-full w-[350px] flex-col overflow-y-auto border-l border-neutral-200 bg-white">
@@ -97,6 +99,39 @@ export function OutputPanel() {
         >
           <DownloadSimple size={15} weight="bold" /> Export
         </button>
+      </div>
+
+      {/* Reality check */}
+      <div className="border-b border-neutral-200 px-4 py-3">
+        <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Reality check</div>
+        {reality.verdict === "empty" ? (
+          <p className="text-[12px] text-neutral-500">Add pieces to check it.</p>
+        ) : (
+          <>
+            <div className="mb-1.5 flex flex-wrap items-center gap-2 text-[12px]">
+              <span
+                className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                  reality.verdict === "workable" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                {reality.verdict === "workable" ? "Looks workable" : "Has gaps"}
+              </span>
+              <span className="text-neutral-600">{reality.needsAI ? "Needs AI" : "No AI needed"}</span>
+            </div>
+            {reality.issues.length > 0 && (
+              <ul className="mb-1 list-disc pl-4 text-[12px] text-amber-700">
+                {reality.issues.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            )}
+            {reality.notes.map((n, i) => (
+              <p key={i} className="text-[11px] text-neutral-500">
+                {n}
+              </p>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Recommended retrieval */}

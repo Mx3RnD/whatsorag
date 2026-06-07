@@ -8,6 +8,7 @@ import {
   Sparkle,
   ArrowsMerge,
   Database,
+  FunnelSimple,
   ChatCircleDots,
   Brain,
   type Icon,
@@ -24,6 +25,7 @@ const CAT_ICON: Record<CategoryKey, Icon> = {
   searchable: Sparkle,
   resolve: ArrowsMerge,
   store: Database,
+  retrieve: FunnelSimple,
   query: ChatCircleDots,
   rag: Brain,
 };

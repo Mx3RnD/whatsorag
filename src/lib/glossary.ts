@@ -53,6 +53,21 @@ export const DEFINITIONS: Record<string, string> = {
   enrich: "Adding extra detail from other sources to fill gaps.",
   "graph database": "A store of things (nodes) and the two-way links between them.",
   node: "One thing in a graph (an entity), connected to others by links.",
+  route: "Deciding which store(s) and which path to search for a given question.",
+  "path expansion": "Following the links out from your first hits to pull in related facts.",
+  fusion: "Combining results that came back from several paths or stores into one set.",
+  "hyperedge filtration": "Keeping only the many-at-once (n-ary) facts that are relevant to the question.",
+  hops: "How many link-steps you travel out from the starting facts.",
+  "priority queue": "A to-do list that always handles the most promising branch next.",
+  "score and prune": "Scoring branches and dropping the weak ones early to stay fast.",
+  "temporal coherence": "How well a fact fits the time and order the question is asking about.",
+  "spatial overlap": "How much a fact's place on a page or image lines up with what is asked.",
+  "structural importance": "How central a fact is in the network of links (well-connected facts count more).",
+  "weighted simulation": "Combining several scoring factors, each with its own weight, into one final ranking.",
+  "context segment extraction": "Pulling out the exact passages or segments to send as evidence.",
+  "cross-encoder": "A slower, more accurate model that reads the question and a result together to judge the match.",
+  "cross reference": "Checking a fact against other sources to confirm, compare, or link them.",
+  "look up": "Fetching a specific record or fact directly by its key, not a fuzzy search.",
 };
 
 export function defineTerm(word: string): string | undefined {

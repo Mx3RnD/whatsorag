@@ -71,6 +71,73 @@ export const EXPLAIN: Record<string, Explain> = {
     when: "Any data you will calculate on or trust - lab and QC data, specs, financials.",
     vs: "Flag gaps spots what is missing; Enrich then fills it; Normalize fixes the format.",
   },
+
+  // --- the retrieve stage ---------------------------------------------------
+  "rt-route": {
+    what: "Decides where to look: which store(s) and which retrieval path best fit this question (e.g. vector search for meaning, graph traversal for linked facts).",
+    when: "Right after the question is embedded, when you have more than one store or strategy to choose between.",
+    vs: "Route picks WHERE and HOW to search. Query (later) is the user asking. Path expansion is what happens once a route through the graph is chosen.",
+  },
+  "rt-expand": {
+    what: "Starts from the first matching facts and follows their links outward to gather related facts the question may also need.",
+    when: "When facts are linked (graph or hypergraph store) and answers depend on more than the single best-matching passage.",
+    vs: "Path expansion grows the candidate set by following links. Hops is the dial for how far it expands. Hyperedge filtration trims what it brings back.",
+  },
+  "rt-fusion": {
+    what: "Merges the results that came back from several paths or stores into one combined, comparable set.",
+    when: "Whenever you searched more than one way (e.g. meaning + keyword, or vector + graph) and need a single ranked list.",
+    vs: "Fusion combines result sets. Weighted simulation combines scoring factors within results. Rerank is the final reorder after fusion.",
+  },
+  "rt-hyperfilter": {
+    what: "Keeps only the many-at-once (n-ary) facts that actually matter to the question, and drops hyperedges that are off-topic.",
+    when: "Only when a hypergraph store is in play, where one fact can join many entities at once.",
+    vs: "Hyperedge filtration trims n-ary facts specifically. Score and prune trims any branch. Constraints filter on metadata like date.",
+  },
+  "rt-hops": {
+    what: "Sets how many link-steps to travel out from the starting facts (1 hop = direct neighbours, 2 hops = neighbours of neighbours, and so on).",
+    when: "Graph or hypergraph retrieval, when answers need connected facts. More hops finds more, but costs more and can drift off-topic.",
+    vs: "Hops is the distance dial. Path expansion is the act of traversing. Priority queue decides the order you traverse in.",
+  },
+  "rt-semantic": {
+    what: "Scores how close a candidate fact is to the question in meaning, using the embedding fingerprints.",
+    when: "Almost always - it is the core relevance signal.",
+    vs: "One of four scoring factors. Semantic = meaning. Temporal = time fit. Spatial = place fit. Structural = how connected the fact is.",
+  },
+  "rt-temporal": {
+    what: "Scores how well a fact fits the time and order the question cares about (recent enough, in the right sequence).",
+    when: "When order matters - an order-aware or episodic store, or time-sensitive questions ('the latest', 'before launch').",
+    vs: "One of four scoring factors. Temporal = when. Semantic = meaning. Plain semantic search alone ignores time.",
+  },
+  "rt-spatial": {
+    what: "Scores how much a fact's location on a page or in an image overlaps what the question is about (e.g. a value inside the right table or region).",
+    when: "When images, video frames, or page layout carry meaning and you tracked where things sit (bounding boxes).",
+    vs: "One of four scoring factors. Spatial = where on the page/image. Semantic = meaning. Needs spatial data (bounding boxes) to work.",
+  },
+  "rt-structural": {
+    what: "Scores how central a fact is in the network of links - well-connected, hub-like facts score higher.",
+    when: "Graph or hypergraph retrieval, to favour facts that tie many things together over isolated ones.",
+    vs: "One of four scoring factors. Structural = importance in the graph. Semantic = meaning. It needs a graph to measure against.",
+  },
+  "rt-weighted": {
+    what: "Combines the scoring factors (semantic, temporal, spatial, structural) into a single ranking, each factor given its own weight.",
+    when: "After multi-factor scoring, to turn several signals into one ordered shortlist.",
+    vs: "Weighted simulation blends the FACTORS into one score. Fusion blends RESULT SETS from different paths. Rerank is the final pass on top.",
+  },
+  "rt-segment": {
+    what: "Pulls out the exact passages or segments from the winning facts - the precise evidence to send on, not the whole document.",
+    when: "Once the top results are chosen, to trim each down to the relevant span before handing it to the assistant.",
+    vs: "Context segment extraction selects the SPANS to send. Chunk (earlier) split the document for storage. Dedup then removes repeats.",
+  },
+  "rt-rerank": {
+    what: "Final best-first reorder with a cross-encoder: a slower, more accurate model reads the question and each candidate together and re-sorts them.",
+    when: "Last step before answering, on the shortlist, to maximise that the very top results are the most relevant.",
+    vs: "Cross-encoder rerank reads question + candidate together (accurate, slow), so it goes last on a short list. The earlier embedding match scores them separately (fast, approximate). This is the final rerank, distinct from any earlier reorder.",
+  },
+  "rt-answer": {
+    what: "Hands the ranked, deduplicated, source-tagged context to the assistant so it can write the answer grounded in that evidence.",
+    when: "The end of retrieval, the bridge into generation.",
+    vs: "Ranked answer to bot delivers the context to the model. Output answer (in Query) is the finished, cited reply shown to the user.",
+  },
 };
 
 export function explainPiece(id: string): Explain | undefined {

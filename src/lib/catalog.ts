@@ -9,6 +9,7 @@ export type CategoryKey =
   | "searchable"
   | "resolve"
   | "store"
+  | "retrieve"
   | "query"
   | "rag";
 
@@ -34,6 +35,7 @@ export const CATEGORIES: Record<CategoryKey, Category> = {
   searchable: { key: "searchable", label: "Make searchable", color: "#3A9D3A", blurb: "Chunk, embed, index." },
   resolve: { key: "resolve", label: "Resolve", color: "#E08A1E", blurb: "Dedup, merge, label, relate." },
   store: { key: "store", label: "Stores", color: "#7B4FB3", blurb: "Where it lands." },
+  retrieve: { key: "retrieve", label: "Retrieve", color: "#0E7C86", blurb: "Get the right context for the answer." },
   query: { key: "query", label: "Query and output", color: "#D6336C", blurb: "Ask, rank, show." },
   rag: { key: "rag", label: "RAG type", color: "#23303A", blurb: "How retrieval is wired." },
 };
@@ -92,6 +94,7 @@ export const PIECES: Piece[] = [
   { id: "rs-bbox", category: "resolve", label: "Bounding box", blurb: "Mark exactly where on the page a fact came from (source trail), for highlighting." },
   { id: "rs-fingerprint", category: "resolve", label: "Fingerprint", blurb: "Attribute content to who made it: speaker (voice), writer (style), or source.", options: ["speaker (voice)", "writer (style)", "source"] },
   { id: "rs-flag", category: "resolve", label: "Flag gaps", blurb: "Flag items missing required context (e.g. undated QC data) for follow-up." },
+  { id: "rs-crossref", category: "resolve", label: "Cross reference", blurb: "Match a fact against other sources to confirm, compare, or link them (uses the source trail)." },
 
   // Stores
   { id: "st-vector", category: "store", label: "Vector database", blurb: "Search by meaning." },
@@ -102,6 +105,29 @@ export const PIECES: Piece[] = [
   { id: "st-timeline", category: "store", label: "Order aware", blurb: "Keep the timeline / order." },
   { id: "st-episodic", category: "store", label: "Episodic memory", blurb: "Events over time: what happened, when. A parallel memory from the same input." },
   { id: "st-semantic", category: "store", label: "Semantic memory", blurb: "Meaning of things, not tied to time. The other half of memory." },
+
+  // Retrieve (the real retrieval pipeline, between the stores and the answer)
+  { id: "rt-translate", category: "retrieve", label: "Translate query", blurb: "Normalize the question and put any language into one shared space." },
+  { id: "rt-embed", category: "retrieve", label: "Embed query", blurb: "Turn the question into the same meaning-numbers used to search." },
+  { id: "rt-route", category: "retrieve", label: "Route", blurb: "Decide which store(s) and path to search for this question." },
+  { id: "rt-lookup", category: "retrieve", label: "Look up", blurb: "Fetch a specific record or fact directly, not a fuzzy search." },
+  { id: "rt-expand", category: "retrieve", label: "Path expansion", blurb: "Follow links out from the first hits to find related facts." },
+  { id: "rt-fusion", category: "retrieve", label: "Fusion", blurb: "Combine the results coming back from several paths or stores." },
+  { id: "rt-hyperfilter", category: "retrieve", label: "Hyperedge filtration", blurb: "Keep only the n-ary facts that are relevant to the question." },
+  { id: "rt-hops", category: "retrieve", label: "Hops", blurb: "How many link-steps to travel out from the starting facts." },
+  { id: "rt-constraints", category: "retrieve", label: "Constraints", blurb: "Apply filters like date range or other limits before scoring." },
+  { id: "rt-pqueue", category: "retrieve", label: "Priority queue", blurb: "Visit the most promising branches first while traversing." },
+  { id: "rt-prune", category: "retrieve", label: "Score and prune", blurb: "Drop weak branches early so search stays fast." },
+  { id: "rt-semantic", category: "retrieve", label: "Semantic similarity", blurb: "Score how close in meaning a fact is to the question." },
+  { id: "rt-temporal", category: "retrieve", label: "Temporal coherence", blurb: "Score how well a fact fits the time and order of the question." },
+  { id: "rt-spatial", category: "retrieve", label: "Spatial overlap", blurb: "Score how much a fact's place on the page or image overlaps what is asked." },
+  { id: "rt-structural", category: "retrieve", label: "Structural importance", blurb: "Score how central a fact is in the network of links." },
+  { id: "rt-weighted", category: "retrieve", label: "Weighted simulation", blurb: "Combine the scoring factors with weights into one ranking." },
+  { id: "rt-segment", category: "retrieve", label: "Context segment extraction", blurb: "Pull out the exact passages or segments to send as evidence." },
+  { id: "rt-dedup", category: "retrieve", label: "Dedup hits", blurb: "Remove repeated results so the same fact is not sent twice." },
+  { id: "rt-rerank", category: "retrieve", label: "Cross-encoder rerank", blurb: "Final best-first reorder with a cross-encoder." },
+  { id: "rt-provenance", category: "retrieve", label: "Provenance enrichment", blurb: "Attach the source trail to each result so it can be cited." },
+  { id: "rt-answer", category: "retrieve", label: "Ranked answer to bot", blurb: "Hand the ranked, cited context to the assistant to answer from." },
 
   // Query / output
   { id: "qo-query", category: "query", label: "Query", blurb: "Ask a question.", options: ["semantic", "fuzzy"] },

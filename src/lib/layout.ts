@@ -13,6 +13,7 @@ export const STAGE_ORDER: CategoryKey[] = [
   "searchable",
   "resolve",
   "store",
+  "retrieve",
   "query",
   "rag",
 ];
@@ -25,6 +26,7 @@ export const STAGE_LABELS: Record<CategoryKey, string> = {
   searchable: "Make searchable",
   resolve: "Resolve",
   store: "Stores",
+  retrieve: "Retrieve",
   query: "Query",
   rag: "RAG",
 };

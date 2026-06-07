@@ -25,8 +25,8 @@ export function recommend(nodes: Node<PieceNodeData>[]): Recommendation {
   const multimodal = [has("src-photo"), has("src-audio"), has("src-video"), has("src-pdf")].filter(Boolean).length >= 2 || video;
   const temporal = video || audio || has("st-timeline") || has("st-episodic");
   const spatial = has("src-photo") || video;
-  const nAry = has("st-hypergraph") || has("rag-hyper") || has("rs-canonical") || (has("rs-entity") && has("rs-relationship"));
-  const graphy = has("rag-graph") || has("rag-hippo") || (has("rs-entity") && has("rs-relationship"));
+  const nAry = has("st-hypergraph") || has("rag-hyper");
+  const graphy = has("rag-graph") || has("rag-hippo") || has("st-graph") || (has("rs-entity") && has("rs-relationship"));
   // explicit picks
   const pickedRaptor = has("rag-raptor") || has("se-summary-tree");
   const pickedHippo = has("rag-hippo");
@@ -54,6 +54,22 @@ export function recommend(nodes: Node<PieceNodeData>[]): Recommendation {
     "Matryoshka embeddings so you can trade accuracy for speed/storage.",
     "Keep a source trail (provenance) on every fact for citations.",
   ];
+
+  // Retrieval-stage hints: only suggest the steps the current stores justify.
+  // Honest and additive - these tell the user which Retrieve pieces apply here.
+  if (graphy || nAry) {
+    baseline.push("Retrieval: traverse links (hops + path expansion) since you have a graph/hypergraph store.");
+    baseline.push("Retrieval: add structural-importance scoring so well-connected facts rank higher.");
+  }
+  if (nAry) {
+    baseline.push("Retrieval: hyperedge filtration to keep only the relevant many-at-once (n-ary) facts.");
+  }
+  if (temporal) {
+    baseline.push("Retrieval: add temporal-coherence scoring since order/time matters (order-aware or episodic store).");
+  }
+  if (spatial) {
+    baseline.push("Retrieval: add spatial-overlap scoring since images/video are present (use bounding boxes).");
+  }
 
   // priority ladder
   if (multimodal && temporal && nAry) {
