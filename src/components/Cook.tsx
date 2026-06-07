@@ -359,7 +359,7 @@ function WorksNow({
           }`}
         >
           {ok ? <CheckCircle size={15} weight="fill" /> : <WarningCircle size={15} weight="fill" />}
-          {ok ? "Workable" : "Has gaps"}
+          {ok ? "Workable" : "Worth a look"}
         </div>
 
         {worksNow.issues.length > 0 && (

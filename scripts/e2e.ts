@@ -72,13 +72,22 @@ const hyper = nodes(["src-pdf", "rs-entity", "st-hypergraph", "rag-hyper", "rt-r
 console.log("\n[Hypergraph]");
 check("recommends HypergraphRAG", () => assert.match(recommend(hyper).architecture, /HypergraphRAG/));
 
-// ---- Config 4: Broken (embed, no store) ----------------------------------
-const broken = nodes(["src-file", "se-embed"]);
-console.log("\n[Broken: embed, no store]");
-check("reality flags the gap", () => {
-  const r = realityCheck(broken, edges(broken));
-  assert.strictEqual(r.verdict, "gaps");
-  assert.ok(r.issues.some((i) => /store/i.test(i)), "should flag the missing store");
+// ---- Config 4: Incomplete (embed, no store) - should be calm "in progress" -
+const partial = nodes(["src-file", "se-embed"]);
+console.log("\n[Incomplete: embed, no store]");
+check("incomplete reads as in-progress, not broken", () => {
+  const r = realityCheck(partial, edges(partial));
+  assert.strictEqual(r.verdict, "building");
+  assert.ok(r.todo.some((t) => /store/i.test(t)), "should prompt to add a store");
+});
+
+// ---- Config 4b: Genuine mismatch -> "check" -------------------------------
+const mismatch = nodes(["src-pdf", "st-vector", "rt-temporal"]);
+console.log("\n[Mismatch: time scoring, no time store]");
+check("real mismatch raises a check", () => {
+  const r = realityCheck(mismatch, edges(mismatch));
+  assert.strictEqual(r.verdict, "check");
+  assert.ok(r.issues.length > 0, "should list the mismatch");
 });
 
 // ---- Config 5: Empty -----------------------------------------------------

@@ -105,19 +105,37 @@ export function OutputPanel() {
       <div className="border-b border-neutral-200 px-4 py-3">
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Reality check</div>
         {reality.verdict === "empty" ? (
-          <p className="text-[12px] text-neutral-500">Add pieces to check it.</p>
+          <p className="text-[12px] text-neutral-500">Add pieces and this will tell you if it works.</p>
         ) : (
           <>
             <div className="mb-1.5 flex flex-wrap items-center gap-2 text-[12px]">
               <span
                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                  reality.verdict === "workable" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                  reality.verdict === "workable"
+                    ? "bg-green-100 text-green-700"
+                    : reality.verdict === "check"
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-neutral-100 text-neutral-600"
                 }`}
               >
-                {reality.verdict === "workable" ? "Looks workable" : "Has gaps"}
+                {reality.verdict === "workable"
+                  ? "Looks workable"
+                  : reality.verdict === "check"
+                    ? "Worth a look"
+                    : "In progress"}
               </span>
               <span className="text-neutral-600">{reality.needsAI ? "Needs AI" : "No AI needed"}</span>
             </div>
+            {reality.todo.length > 0 && (
+              <div className="mb-1 text-[12px] text-neutral-600">
+                To finish it, add:
+                <ul className="mt-0.5 list-disc pl-4">
+                  {reality.todo.map((t, i) => (
+                    <li key={i}>{t}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {reality.issues.length > 0 && (
               <ul className="mb-1 list-disc pl-4 text-[12px] text-amber-700">
                 {reality.issues.map((s, i) => (

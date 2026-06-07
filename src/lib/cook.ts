@@ -55,7 +55,7 @@ export type CookResult = {
   stores: CookedStore[]; // empty -> "nothing to cook yet"
   emptyReason: string; // shown when hasStore is false
   worksNow: {
-    verdict: "workable" | "gaps"; // "empty" is folded into the no-store state
+    verdict: "workable" | "check"; // "empty" is folded into the no-store state
     issues: string[];
     needsAI: boolean;
   };
@@ -107,12 +107,12 @@ function pick(m: Meter[], label: string): number {
 
 // Health at a stage: gaps now means it can break later; high cost/storage strains it.
 function stageHealth(
-  baseVerdict: "empty" | "workable" | "gaps",
+  baseVerdict: "empty" | "building" | "workable" | "check",
   cost: number,
   storage: number,
   recall: number,
 ): Snapshot["health"] {
-  if (baseVerdict === "gaps") return "breaks";
+  if (baseVerdict === "check") return "breaks";
   if (cost >= 85 || storage >= 88) return "breaks";
   if (cost >= 68 || storage >= 70 || recall < 45) return "strained";
   return "healthy";
@@ -190,7 +190,7 @@ export function cook(
         ? "The stores on the canvas are not ones we can picture yet."
         : "Nothing to cook yet. Add a store (like a vector or graph database), then cook.",
     worksNow: {
-      verdict: reality.verdict === "gaps" ? "gaps" : "workable",
+      verdict: reality.verdict === "check" ? "check" : "workable",
       issues: reality.issues,
       needsAI: reality.needsAI,
     },
