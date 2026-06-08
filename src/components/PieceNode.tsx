@@ -3,29 +3,54 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { CATEGORIES } from "@/lib/catalog";
 import { Term } from "@/components/Term";
-import type { PieceNodeData } from "@/store/canvas";
+import { useCanvas, type PieceNodeData } from "@/store/canvas";
 
-export function PieceNode({ data, selected }: NodeProps) {
+export function PieceNode({ id, data, selected }: NodeProps) {
   const d = data as PieceNodeData;
   const color = CATEGORIES[d.category as keyof typeof CATEGORIES]?.color ?? "#888";
   const categoryLabel = CATEGORIES[d.category as keyof typeof CATEGORIES]?.label;
 
+  const connectSourceId = useCanvas((s) => s.connectSourceId);
+  const connectMode = connectSourceId !== null;
+  const isSource = connectSourceId === id;
+
+  // In connect mode the active source node gets a full-bleed SOURCE handle (drag
+  // from anywhere in it), every other node gets a full-bleed TARGET handle (drop
+  // anywhere on it). Both handle types stay mounted so existing edges keep their
+  // anchors; only the relevant one is enlarged.
+  const fullBleed = {
+    position: "absolute" as const,
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    transform: "none",
+    borderRadius: 12,
+    background: "transparent",
+    border: "none",
+  };
+  const dot = { background: color, width: 8, height: 8, border: "none" };
+
   return (
     <div
-      className="overflow-hidden rounded-xl border bg-white transition-shadow"
+      className={`overflow-hidden rounded-xl border bg-white transition-shadow ${
+        isSource ? "whatsorag-connect-source" : ""
+      }`}
       style={{
-        borderColor: selected ? color : "#e5e7eb",
-        borderWidth: selected ? 2 : 1,
+        borderColor: selected || isSource ? color : "#e5e7eb",
+        borderWidth: selected || isSource ? 2 : 1,
         boxShadow: selected
           ? `0 0 0 3px ${color}33, 0 4px 12px rgba(15, 23, 42, 0.12)`
           : "0 1px 3px rgba(15, 23, 42, 0.08)",
         width: 160,
+        // Color the pulse glow to match the piece category.
+        ["--pulse-color" as string]: `${color}66`,
       }}
     >
       <Handle
         type="target"
         position={Position.Left}
-        style={{ background: color, width: 8, height: 8, border: "none" }}
+        isConnectableEnd
+        style={connectMode && !isSource ? { ...fullBleed, zIndex: 5 } : dot}
       />
 
       <div
@@ -49,7 +74,9 @@ export function PieceNode({ data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        style={{ background: color, width: 8, height: 8, border: "none" }}
+        // In connect mode only the chosen source node may start a connection.
+        isConnectableStart={connectMode ? isSource : true}
+        style={connectMode && isSource ? { ...fullBleed, zIndex: 6 } : dot}
       />
     </div>
   );

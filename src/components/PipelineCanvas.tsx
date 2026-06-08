@@ -12,7 +12,7 @@ import {
   type Node,
   type NodeTypes,
 } from "@xyflow/react";
-import { Columns, ArrowCounterClockwise, Trash } from "@phosphor-icons/react";
+import { Columns, ArrowCounterClockwise, Trash, LinkSimple, X } from "@phosphor-icons/react";
 import { PieceNode } from "@/components/PieceNode";
 import { useCanvas, type PieceNodeData } from "@/store/canvas";
 import { getPiece, CATEGORIES } from "@/lib/catalog";
@@ -23,6 +23,10 @@ const nodeTypes: NodeTypes = { piece: PieceNode };
 function Inner() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addPiece, select, clear } = useCanvas();
   const fitSignal = useCanvas((s) => s.fitSignal);
+  const connectSourceId = useCanvas((s) => s.connectSourceId);
+  const setConnectSource = useCanvas((s) => s.setConnectSource);
+  const connectMode = connectSourceId !== null;
+  const sourceLabel = nodes.find((n) => n.id === connectSourceId)?.data.label;
   const { screenToFlowPosition, setNodes, setEdges, fitView } = useReactFlow<Node<PieceNodeData>>();
   const [menu, setMenu] = useState<{ x: number; y: number; kind: "node" | "edge"; id: string } | null>(null);
 
@@ -73,6 +77,15 @@ function Inner() {
     window.requestAnimationFrame(() => fitView({ duration: 300, padding: 0.15 }));
   }, [setNodes, fitView]);
 
+  // Double-tap a node to enter connect mode (toggle off if it's already the
+  // source). Then a drag from anywhere in it to another node draws the arrow.
+  const onNodeDoubleClick = useCallback(
+    (_: React.MouseEvent, n: Node<PieceNodeData>) => {
+      setConnectSource(connectSourceId === n.id ? null : n.id);
+    },
+    [connectSourceId, setConnectSource]
+  );
+
   return (
     <div className="h-full w-full">
       <ReactFlow
@@ -86,7 +99,18 @@ function Inner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={(_, n) => select(n.id)}
-        onPaneClick={() => select(null)}
+        onNodeDoubleClick={onNodeDoubleClick}
+        onPaneClick={() => {
+          select(null);
+          if (connectMode) setConnectSource(null);
+        }}
+        // Connect mode freezes panning/dragging so a drag draws an arrow instead
+        // of moving the canvas or the node. A wider connectionRadius makes the
+        // drop forgiving on touch.
+        panOnDrag={!connectMode}
+        nodesDraggable={!connectMode}
+        zoomOnDoubleClick={false}
+        connectionRadius={44}
         onDrop={onDrop}
         onDragOver={(e) => {
           e.preventDefault();
@@ -97,6 +121,25 @@ function Inner() {
       >
         <Background color="#dbe1e8" gap={18} />
         <Controls showInteractive={false} />
+
+        {connectMode && (
+          <Panel position="bottom-center">
+            <div className="flex max-w-[92vw] items-center gap-2 rounded-full border border-blue-200 bg-blue-50/95 px-3 py-1.5 text-xs font-medium text-blue-800 shadow-sm">
+              <LinkSimple size={15} weight="bold" className="shrink-0" />
+              <span className="truncate">
+                Drag from <span className="font-semibold">{sourceLabel ?? "the glowing piece"}</span> to another piece
+              </span>
+              <button
+                type="button"
+                onClick={() => setConnectSource(null)}
+                className="ml-1 flex shrink-0 items-center gap-0.5 rounded-full bg-white/70 px-2 py-0.5 text-blue-700 hover:bg-white"
+              >
+                <X size={12} weight="bold" /> Cancel
+              </button>
+            </div>
+          </Panel>
+        )}
+
         <MiniMap
           pannable
           zoomable
@@ -189,8 +232,8 @@ export function PipelineCanvas() {
               Connect them by dragging from one edge to another.
             </span>
             <span className="md:hidden">
-              Tap <span className="font-semibold text-neutral-700">Pieces</span> to add steps, then drag
-              from one dot to another to connect them.
+              Tap <span className="font-semibold text-neutral-700">Pieces</span> to add steps.
+              Double-tap a piece, then drag to another to connect them.
             </span>
           </div>
         </div>

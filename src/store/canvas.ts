@@ -50,6 +50,10 @@ type CanvasState = {
   // Bumped whenever the canvas should re-fit the view (tap-add, load). The
   // canvas watches this so taps/loads land in view without a React Flow ref here.
   fitSignal: number;
+  // Touch "connect mode": the node you're drawing an arrow FROM. While set, that
+  // node pulses, the canvas freezes panning, and a drag anywhere from it to
+  // another node makes the connection (no tiny handle to hit). Cleared on connect.
+  connectSourceId: string | null;
   onNodesChange: (c: NodeChange[]) => void;
   onEdgesChange: (c: EdgeChange[]) => void;
   onConnect: (c: Connection) => void;
@@ -58,6 +62,8 @@ type CanvasState = {
   addPieceTap: (piece: Piece) => void;
   // Remove a node and its connected edges (touch-friendly delete; no right-click).
   removeNode: (id: string) => void;
+  // Enter/exit connect mode for a node (pass null to exit).
+  setConnectSource: (id: string | null) => void;
   select: (id: string | null) => void;
   setChoice: (id: string, choice: string) => void;
   setModel: (id: string, model: string) => void;
@@ -91,12 +97,14 @@ export const useCanvas = create<CanvasState>((set, get) => ({
   selectedId: null,
   tuning: DEFAULT_TUNING,
   fitSignal: 0,
+  connectSourceId: null,
 
   onNodesChange: (changes) =>
     set({ nodes: applyNodeChanges(changes, get().nodes) as Node<PieceNodeData>[] }),
   onEdgesChange: (changes) => set({ edges: applyEdgeChanges(changes, get().edges) }),
   onConnect: (conn) =>
-    set({ edges: addEdge({ ...conn, animated: true }, get().edges) }),
+    // Adding the edge also exits connect mode.
+    set({ edges: addEdge({ ...conn, animated: true }, get().edges), connectSourceId: null }),
 
   addPiece: (piece, position) => {
     const node = buildNode(piece, position);
@@ -121,7 +129,10 @@ export const useCanvas = create<CanvasState>((set, get) => ({
       nodes: get().nodes.filter((n) => n.id !== id),
       edges: get().edges.filter((e) => e.source !== id && e.target !== id),
       selectedId: get().selectedId === id ? null : get().selectedId,
+      connectSourceId: get().connectSourceId === id ? null : get().connectSourceId,
     }),
+
+  setConnectSource: (id) => set({ connectSourceId: id }),
 
   select: (id) => set({ selectedId: id }),
   setChoice: (id, choice) =>
@@ -139,7 +150,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
   setTuning: (patch) => set({ tuning: { ...get().tuning, ...patch } }),
   loadInto: (nodes, edges, tuning) =>
     set({ nodes, edges, tuning, selectedId: null, fitSignal: get().fitSignal + 1 }),
-  clear: () => set({ nodes: [], edges: [], selectedId: null }),
+  clear: () => set({ nodes: [], edges: [], selectedId: null, connectSourceId: null }),
 }));
 
 import { CATEGORIES } from "@/lib/catalog";
