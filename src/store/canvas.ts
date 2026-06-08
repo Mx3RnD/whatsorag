@@ -105,9 +105,9 @@ export const useCanvas = create<CanvasState>((set, get) => ({
 
   addPieceTap: (piece) => {
     const n = get().nodes.length;
-    // Stagger near the origin so repeated taps don't fully overlap; fitSignal
-    // then brings them into view.
-    const position = { x: (n % 5) * 48 - 96, y: Math.floor(n / 5) * 84 };
+    // Lay taps out in a non-overlapping grid (nodes are ~160px wide); fitSignal
+    // then frames them. "Arrange in stages" re-flows into the proper pipeline.
+    const position = { x: (n % 3) * 190, y: Math.floor(n / 3) * 120 };
     const node = buildNode(piece, position);
     set({
       nodes: [...get().nodes, node],

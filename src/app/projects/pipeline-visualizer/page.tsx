@@ -177,7 +177,7 @@ export default function PipelineVisualizer() {
         </div>
       </header>
 
-      <div className="relative flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1 overflow-hidden">
         <Palette mobileOpen={mobilePanel === "palette"} onClose={() => setMobilePanel(null)} />
         <div className="min-w-0 flex-1">
           <PipelineCanvas />

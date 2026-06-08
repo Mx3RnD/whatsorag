@@ -30,7 +30,7 @@ function Inner() {
   // land in view even when the user can't drag-drop to a visible spot (mobile).
   useEffect(() => {
     if (fitSignal === 0) return;
-    const raf = window.requestAnimationFrame(() => fitView({ duration: 300, padding: 0.2 }));
+    const raf = window.requestAnimationFrame(() => fitView({ duration: 300, padding: 0.2, maxZoom: 1.2 }));
     return () => window.cancelAnimationFrame(raf);
   }, [fitSignal, fitView]);
 
