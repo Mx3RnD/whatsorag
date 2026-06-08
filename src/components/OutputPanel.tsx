@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle, Compass, X, Trash } from "@phosphor-icons/react";
+import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle, Compass, X, Trash, LinkSimple } from "@phosphor-icons/react";
 import { useCanvas } from "@/store/canvas";
 import { getPiece, getModels } from "@/lib/catalog";
 import { getSample } from "@/lib/samples";
@@ -74,7 +74,8 @@ export function OutputPanel({
   mobileOpen?: boolean;
   onClose?: () => void;
 } = {}) {
-  const { nodes, edges, selectedId, tuning, setChoice, setModel, setTuning, removeNode } = useCanvas();
+  const { nodes, edges, selectedId, tuning, setChoice, setModel, setTuning, removeNode, setConnectSource } =
+    useCanvas();
   const [name, setName] = useState("My pipeline");
   const selected = nodes.find((n) => n.id === selectedId);
   const selectedPiece = selected ? getPiece(selected.data.pieceId) : undefined;
@@ -222,14 +223,27 @@ export function OutputPanel({
             <div className="text-sm font-semibold text-neutral-800">
               <Term word={selected.data.label}>{selected.data.label}</Term>
             </div>
-            <button
-              type="button"
-              onClick={() => removeNode(selected.id)}
-              title="Remove this piece from the canvas"
-              className="flex shrink-0 items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50"
-            >
-              <Trash size={13} weight="bold" /> Remove
-            </button>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setConnectSource(selected.id);
+                  onClose?.();
+                }}
+                title="Draw an arrow from this piece to another"
+                className="flex items-center gap-1 rounded-md border border-blue-200 px-2 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-50"
+              >
+                <LinkSimple size={13} weight="bold" /> Connect
+              </button>
+              <button
+                type="button"
+                onClick={() => removeNode(selected.id)}
+                title="Remove this piece from the canvas"
+                className="flex items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50"
+              >
+                <Trash size={13} weight="bold" /> Remove
+              </button>
+            </div>
           </div>
           {(() => {
             const ex = explainPiece(selected.data.pieceId);
