@@ -229,7 +229,8 @@ export function ComparisonTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-neutral-200">
+      <div className="mb-1 text-[11px] text-neutral-400 md:hidden">Scroll sideways to see every column &rarr;</div>
+      <div className="-mx-1 overflow-x-auto rounded-lg border border-neutral-200">
         <table className="w-full min-w-[1100px] border-collapse text-left text-[13px]">
           <thead>
             <tr className="bg-neutral-50 text-[11px] uppercase tracking-wide text-neutral-500">

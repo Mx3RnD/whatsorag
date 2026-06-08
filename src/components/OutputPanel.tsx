@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle, Compass } from "@phosphor-icons/react";
+import { FloppyDisk, DownloadSimple, Sliders, Clock, Sparkle, Compass, X, Trash } from "@phosphor-icons/react";
 import { useCanvas } from "@/store/canvas";
 import { getPiece, getModels } from "@/lib/catalog";
 import { getSample } from "@/lib/samples";
@@ -67,8 +67,14 @@ function Bar({ label, value, hint }: { label: string; value: number; hint: strin
   );
 }
 
-export function OutputPanel() {
-  const { nodes, edges, selectedId, tuning, setChoice, setModel, setTuning } = useCanvas();
+export function OutputPanel({
+  mobileOpen = false,
+  onClose,
+}: {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+} = {}) {
+  const { nodes, edges, selectedId, tuning, setChoice, setModel, setTuning, removeNode } = useCanvas();
   const [name, setName] = useState("My pipeline");
   const selected = nodes.find((n) => n.id === selectedId);
   const selectedPiece = selected ? getPiece(selected.data.pieceId) : undefined;
@@ -77,7 +83,27 @@ export function OutputPanel() {
   const reality = useMemo(() => realityCheck(nodes, edges), [nodes, edges]);
 
   return (
-    <aside className="flex h-full w-[350px] flex-col overflow-y-auto border-l border-neutral-200 bg-white">
+    <aside
+      className={[
+        // Static right column on desktop; off-canvas slide-in drawer on mobile.
+        "absolute inset-y-0 right-0 z-30 flex h-full w-[350px] max-w-[88vw] flex-col overflow-y-auto border-l border-neutral-200 bg-white shadow-xl transition-transform duration-200",
+        "md:static md:z-auto md:max-w-none md:shadow-none md:translate-x-0",
+        mobileOpen ? "translate-x-0" : "translate-x-full",
+      ].join(" ")}
+    >
+      {onClose && (
+        <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2 md:hidden">
+          <span className="text-sm font-semibold text-neutral-800">Analysis &amp; recommendation</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close results panel"
+            className="-mr-1 rounded-md p-1 text-neutral-500 hover:bg-neutral-100"
+          >
+            <X size={18} weight="bold" />
+          </button>
+        </div>
+      )}
       {/* Save / Export */}
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2">
         <input
@@ -192,8 +218,18 @@ export function OutputPanel() {
       {/* About this piece */}
       {selected && (
         <div className="border-b border-neutral-200 px-4 py-3">
-          <div className="text-sm font-semibold text-neutral-800">
-            <Term word={selected.data.label}>{selected.data.label}</Term>
+          <div className="flex items-start justify-between gap-2">
+            <div className="text-sm font-semibold text-neutral-800">
+              <Term word={selected.data.label}>{selected.data.label}</Term>
+            </div>
+            <button
+              type="button"
+              onClick={() => removeNode(selected.id)}
+              title="Remove this piece from the canvas"
+              className="flex shrink-0 items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50"
+            >
+              <Trash size={13} weight="bold" /> Remove
+            </button>
           </div>
           {(() => {
             const ex = explainPiece(selected.data.pieceId);

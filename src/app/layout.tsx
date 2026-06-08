@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
@@ -16,6 +16,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "whatsoRAG - design your ingest, extract, and RAG pipeline",
   description: "A visual resource for designing data-ingestion and retrieval pipelines. Made by Meagan McKeever.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Allow pinch-zoom for accessibility; the canvas does its own zoom too.
+  maximumScale: 5,
 };
 
 export default function RootLayout({

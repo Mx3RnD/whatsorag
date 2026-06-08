@@ -47,10 +47,17 @@ type CanvasState = {
   edges: Edge[];
   selectedId: string | null;
   tuning: Tuning;
+  // Bumped whenever the canvas should re-fit the view (tap-add, load). The
+  // canvas watches this so taps/loads land in view without a React Flow ref here.
+  fitSignal: number;
   onNodesChange: (c: NodeChange[]) => void;
   onEdgesChange: (c: EdgeChange[]) => void;
   onConnect: (c: Connection) => void;
   addPiece: (piece: Piece, position: { x: number; y: number }) => void;
+  // Add a piece without a drop position (tap / click), staggered and auto-fit.
+  addPieceTap: (piece: Piece) => void;
+  // Remove a node and its connected edges (touch-friendly delete; no right-click).
+  removeNode: (id: string) => void;
   select: (id: string | null) => void;
   setChoice: (id: string, choice: string) => void;
   setModel: (id: string, model: string) => void;
@@ -62,11 +69,28 @@ type CanvasState = {
 let seq = 0;
 const nextId = () => `n_${Date.now()}_${seq++}`;
 
+function buildNode(piece: Piece, position: { x: number; y: number }): Node<PieceNodeData> {
+  return {
+    id: nextId(),
+    type: "piece",
+    position,
+    data: {
+      pieceId: piece.id,
+      label: piece.label,
+      category: piece.category,
+      color: getPiece(piece.id)?.category ? colorFor(piece.id) : "#888",
+      choice: piece.options?.[0],
+      model: getModels(piece.id)?.[0],
+    },
+  };
+}
+
 export const useCanvas = create<CanvasState>((set, get) => ({
   nodes: [],
   edges: [],
   selectedId: null,
   tuning: DEFAULT_TUNING,
+  fitSignal: 0,
 
   onNodesChange: (changes) =>
     set({ nodes: applyNodeChanges(changes, get().nodes) as Node<PieceNodeData>[] }),
@@ -75,22 +99,29 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     set({ edges: addEdge({ ...conn, animated: true }, get().edges) }),
 
   addPiece: (piece, position) => {
-    const id = nextId();
-    const node: Node<PieceNodeData> = {
-      id,
-      type: "piece",
-      position,
-      data: {
-        pieceId: piece.id,
-        label: piece.label,
-        category: piece.category,
-        color: getPiece(piece.id)?.category ? colorFor(piece.id) : "#888",
-        choice: piece.options?.[0],
-        model: getModels(piece.id)?.[0],
-      },
-    };
-    set({ nodes: [...get().nodes, node], selectedId: id });
+    const node = buildNode(piece, position);
+    set({ nodes: [...get().nodes, node], selectedId: node.id });
   },
+
+  addPieceTap: (piece) => {
+    const n = get().nodes.length;
+    // Lay taps out in a non-overlapping grid (nodes are ~160px wide); fitSignal
+    // then frames them. "Arrange in stages" re-flows into the proper pipeline.
+    const position = { x: (n % 3) * 190, y: Math.floor(n / 3) * 120 };
+    const node = buildNode(piece, position);
+    set({
+      nodes: [...get().nodes, node],
+      selectedId: node.id,
+      fitSignal: get().fitSignal + 1,
+    });
+  },
+
+  removeNode: (id) =>
+    set({
+      nodes: get().nodes.filter((n) => n.id !== id),
+      edges: get().edges.filter((e) => e.source !== id && e.target !== id),
+      selectedId: get().selectedId === id ? null : get().selectedId,
+    }),
 
   select: (id) => set({ selectedId: id }),
   setChoice: (id, choice) =>
@@ -106,7 +137,8 @@ export const useCanvas = create<CanvasState>((set, get) => ({
       ),
     }),
   setTuning: (patch) => set({ tuning: { ...get().tuning, ...patch } }),
-  loadInto: (nodes, edges, tuning) => set({ nodes, edges, tuning, selectedId: null }),
+  loadInto: (nodes, edges, tuning) =>
+    set({ nodes, edges, tuning, selectedId: null, fitSignal: get().fitSignal + 1 }),
   clear: () => set({ nodes: [], edges: [], selectedId: null }),
 }));
 
