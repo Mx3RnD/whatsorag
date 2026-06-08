@@ -24,7 +24,7 @@ const ICONS: Record<string, Icon> = {
   enterprise: Buildings,
 };
 
-export function Templates() {
+export function Templates({ onPick }: { onPick?: () => void } = {}) {
   const loadInto = useCanvas((s) => s.loadInto);
 
   return (
@@ -38,7 +38,10 @@ export function Templates() {
           return (
             <button
               key={t.key}
-              onClick={() => loadInto(t.nodes, t.edges, t.tuning)}
+              onClick={() => {
+                loadInto(t.nodes, t.edges, t.tuning);
+                onPick?.();
+              }}
               title={t.description}
               className="group flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-left hover:border-neutral-300 hover:bg-white"
             >

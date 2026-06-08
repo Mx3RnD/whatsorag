@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -22,8 +22,17 @@ const nodeTypes: NodeTypes = { piece: PieceNode };
 
 function Inner() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addPiece, select, clear } = useCanvas();
+  const fitSignal = useCanvas((s) => s.fitSignal);
   const { screenToFlowPosition, setNodes, setEdges, fitView } = useReactFlow<Node<PieceNodeData>>();
   const [menu, setMenu] = useState<{ x: number; y: number; kind: "node" | "edge"; id: string } | null>(null);
+
+  // Re-fit the view when a piece is tap-added or a flow is loaded, so new nodes
+  // land in view even when the user can't drag-drop to a visible spot (mobile).
+  useEffect(() => {
+    if (fitSignal === 0) return;
+    const raf = window.requestAnimationFrame(() => fitView({ duration: 300, padding: 0.2 }));
+    return () => window.cancelAnimationFrame(raf);
+  }, [fitSignal, fitView]);
 
   const onNodeContextMenu = useCallback((e: React.MouseEvent, n: Node<PieceNodeData>) => {
     e.preventDefault();
@@ -91,6 +100,7 @@ function Inner() {
         <MiniMap
           pannable
           zoomable
+          className="hidden sm:block"
           nodeColor={(n) => CATEGORIES[(n.data as { category: keyof typeof CATEGORIES }).category]?.color ?? "#888"}
         />
 
@@ -172,10 +182,16 @@ export function PipelineCanvas() {
       </ReactFlowProvider>
       {nodeCount === 0 && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="rounded-lg border border-dashed border-neutral-300 bg-white/70 px-5 py-4 text-center text-sm text-neutral-500">
-            Drag pieces from the left to start building your pipeline.
-            <br />
-            Connect them by dragging from one edge to another.
+          <div className="mx-4 rounded-lg border border-dashed border-neutral-300 bg-white/70 px-5 py-4 text-center text-sm text-neutral-500">
+            <span className="hidden md:inline">
+              Drag pieces from the left to start building your pipeline.
+              <br />
+              Connect them by dragging from one edge to another.
+            </span>
+            <span className="md:hidden">
+              Tap <span className="font-semibold text-neutral-700">Pieces</span> to add steps, then drag
+              from one dot to another to connect them.
+            </span>
           </div>
         </div>
       )}
